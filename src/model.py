@@ -5,19 +5,8 @@ import torch.nn as nn
 class CNNModel(nn.Module):
     def __init__(self, input_size=(512, 512)) -> None:
         super(CNNModel, self).__init__()
-
-        # Bloque de convolución
-        def conv_block(in_channels, out_channels, kernel_size=3, stride=1, padding=1) -> nn.Sequential:
-            return nn.Sequential(
-                nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size, stride=stride, padding=padding),
-                nn.ReLU(inplace=True),
-                nn.MaxPool2d(kernel_size=2, stride=2)
-            )
-
-        # Bloques de características
-        self.block1 = conv_block(1, 32)
-        self.block2 = conv_block(32, 64)
-        self.block3 = conv_block(64, 128)
+        self.conv1 = nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3, stride=1, padding=1)
+        self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1)
 
         # Calcular el tamaño de salida del bloque de características
         conv_output_size = self._get_conv_output(input_size)
@@ -32,9 +21,8 @@ class CNNModel(nn.Module):
         return x
 
     def _forward_features(self, x):
-        x = self.block1(x)
-        x = self.block2(x)
-        x = self.block3(x)
+        x = self.conv1(x)
+        x = self.conv2(x)
         return x
 
     def _get_conv_output(self, input_size):

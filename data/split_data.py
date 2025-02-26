@@ -14,7 +14,7 @@ class DivisionDatos:
     def dividir(self: Self) -> None:
         os.makedirs(self.ruta_destino, exist_ok=True)
 
-        for split in ["train", "eval", "test"]:
+        for split in ["train", "val", "test"]:
             os.makedirs(os.path.join(self.ruta_destino, split), exist_ok=True)
 
         clases: list[str] = os.listdir(self.ruta_origen)
@@ -30,7 +30,7 @@ class DivisionDatos:
 
             splits: dict[str, list[str]] = {
                 "train": imagenes[:n_entrenamiento],
-                "eval": imagenes[n_entrenamiento:n_entrenamiento + n_evaluacion],
+                "val": imagenes[n_entrenamiento:n_entrenamiento + n_evaluacion],
                 "test": imagenes[n_entrenamiento + n_evaluacion:]
             }
 

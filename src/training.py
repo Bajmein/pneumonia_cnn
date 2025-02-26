@@ -3,10 +3,9 @@ from colorama import Fore, Style
 from utils.model_evaluation import evaluate_model
 
 
-def train(model, train_loader, val_loader, test_loader, device, epochs, optimizer, criterion, best_model_path, scheduler=None):
+def train(model, train_loader, val_loader, test_loader, device, epochs, optimizer, criterion, model_path, scheduler=None):
     # TODO: Probar tqdm en los epochs
     # TODO: Intentar usar metodo para refrescar terminal
-    # TODO: Usar Lighting
 
     # Inicializar listas para almacenar métricas por época
     train_accuracies, val_accuracies = [], []
@@ -43,7 +42,7 @@ def train(model, train_loader, val_loader, test_loader, device, epochs, optimize
 
     # Comparar con el modelo previo guardado
     try:
-        checkpoint = torch.load(best_model_path, weights_only=True)
+        checkpoint = torch.load(model_path, weights_only=True)
         previous_evaluation_accuracy = checkpoint.get("evaluation_accuracy", 0.0)
         print(f"\nPrevious model evaluation accuracy: {previous_evaluation_accuracy:.4f}")
 
@@ -54,10 +53,10 @@ def train(model, train_loader, val_loader, test_loader, device, epochs, optimize
     # Guardar el modelo si la precisión actual es mejor
     if current_evaluation_accuracy > previous_evaluation_accuracy:
         torch.save(
-            {"state_dict": model.state_dict(), "evaluation_accuracy": current_evaluation_accuracy}, best_model_path
+            {"state_dict": model.state_dict(), "evaluation_accuracy": current_evaluation_accuracy}, model_path
         )
         print(f"\nNew best model saved with evaluation accuracy: {current_evaluation_accuracy:.4f}\
-         at {best_model_path}")
+         at {model_path}")
     else:
         print("\nCurrent model did not outperform the previous model.")
 
@@ -90,4 +89,3 @@ def run_epoch(model, loader, device, optimizer, criterion, training):
     average_loss = total_loss / len(loader.dataset)
     average_accuracy = correct_predictions / len(loader.dataset)
     return average_loss, average_accuracy
-
