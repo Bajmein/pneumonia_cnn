@@ -1,13 +1,12 @@
 import torch
 from colorama import Fore, Style
-from utils.training_utils import EarlyStopping
 from utils.model_evaluation import evaluate_model
 
 
-def train(model, train_loader, val_loader, test_loader, device, epochs, optimizer, criterion, scheduler=None, patience=10, best_model_path="best_model.pth"):
-
-    # Inicializar EarlyStopping con métricas previas
-    early_stopping = EarlyStopping(patience=patience)
+def train(model, train_loader, val_loader, test_loader, device, epochs, optimizer, criterion, best_model_path, scheduler=None):
+    # TODO: Probar tqdm en los epochs
+    # TODO: Intentar usar metodo para refrescar terminal
+    # TODO: Usar Lighting
 
     # Inicializar listas para almacenar métricas por época
     train_accuracies, val_accuracies = [], []
@@ -36,13 +35,7 @@ def train(model, train_loader, val_loader, test_loader, device, epochs, optimize
         print(f"- Validation:  Loss -> {Fore.GREEN}{val_loss:.4f}{Style.RESET_ALL},\
          Accuracy -> {Fore.GREEN}{val_accuracy:.4f}{Style.RESET_ALL}")
 
-        if scheduler:
-            scheduler.step(val_loss)
-
-        # Evaluar Early Stopping basado en precisión de validación
-        if early_stopping(val_loss):
-            print("Early stopping triggered. Training stopped.")
-            break
+        if scheduler: scheduler.step(val_loss)
 
     # Evaluar precisión general del modelo actual
     current_evaluation_accuracy = evaluate_model(model, test_loader, device)
@@ -78,8 +71,7 @@ def run_epoch(model, loader, device, optimizer, criterion, training):
             images, labels = images.to(device), labels.to(device)
 
             # Reset gradients if training
-            if training:
-                optimizer.zero_grad()
+            if training: optimizer.zero_grad()
 
             # Forward pass
             predictions = model(images)

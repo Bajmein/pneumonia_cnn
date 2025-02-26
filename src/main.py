@@ -4,33 +4,25 @@ from torch.nn import CrossEntropyLoss
 from src.data_processing import load_data
 from src.training import train
 from src.model import CNNModel
-from utils.experiment_utils import create_model_filename
 
 
 if __name__ == "__main__":
     try:
         # General Configuration
         DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        print(f"\nDevice: {torch.cuda.get_device_name()}") if DEVICE.type == "cuda" else print("\nDevice: CPU")
+
         OUTPUT_PATH = Path("../outputs")
         OUTPUT_PATH.mkdir(parents=True, exist_ok=True)
 
-        TRAIN_PATH = "../data/split/train"
-        VALIDATION_PATH = "../data/split/eval"
-        TEST_PATH = "../data/split/test"
+        TRAIN_PATH = "../data/divided/train"
+        VALIDATION_PATH = "../data/divided/eval"
+        TEST_PATH = "../data/divided/test"
 
         # TODO: Externalizar configuraciones
         EPOCHS = 20
-        BATCH_SIZE = 16
-        LR = 0.001
-        EARLY_STOPPING_PATIENCE = 5
-        DROPOUT = None
-        LAYER_CONFIG = [32, 64, 128]
-        INPUT_SIZE = (256, 256)
-
-        if DEVICE.type == "cuda":
-            print(f"\nDevice: {torch.cuda.get_device_name(torch.cuda.current_device())}")
-        else:
-            print("\nDevice: CPU")
+        BATCH_SIZE = 32
+        LR = 0.0001
 
         # Data Preparation
         train_loader, val_loader, test_loader = load_data(
@@ -41,7 +33,7 @@ if __name__ == "__main__":
         )
 
         # Model Initialization
-        model = CNNModel(LAYER_CONFIG, INPUT_SIZE).to(DEVICE)
+        model = CNNModel().to(DEVICE)
         optimizer = torch.optim.Adam(model.parameters(), lr=LR)
         criterion = CrossEntropyLoss()
         scheduler = None
@@ -56,12 +48,7 @@ if __name__ == "__main__":
             epochs=EPOCHS,
             optimizer=optimizer,
             criterion=criterion,
-            patience=EARLY_STOPPING_PATIENCE,
-            best_model_path=OUTPUT_PATH / (
-                model_filename := create_model_filename(
-                    model, optimizer, criterion, scheduler, DROPOUT, EPOCHS, LR, LAYER_CONFIG
-                )
-            )
+            best_model_path=OUTPUT_PATH / 'CustomCNN.pth',
         )
 
     except KeyboardInterrupt:
